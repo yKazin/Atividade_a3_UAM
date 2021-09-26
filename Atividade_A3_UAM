@@ -1,0 +1,197 @@
+// Foco no Progresso;
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <locale.h>
+#include <string.h>
+
+typedef struct{
+	char nome[30];
+	int nascimento;
+	float gastos;
+}cliente;
+
+typedef struct{
+	cliente *pCliente;
+	int qtdcliente;
+}listaCliente;
+	
+void criarListaVazia(listaCliente *listaP){
+	listaP->pCliente = (cliente *)calloc(10, sizeof(cliente));
+}
+void criarListaVaziaM(listaCliente *listaP, int pos){
+	listaP->pCliente = (cliente *)calloc(10 *(1+ (pos/10)), sizeof(cliente));
+}
+void inserirRegistro(char nome[], int nascimento, float gastos, listaCliente *listaP, int pos){
+	printf("\n POS: %d  ", pos);
+	if(pos >= 10 && pos % 10 == 0){
+		listaP->pCliente = (cliente *) realloc (listaP->pCliente, 10* ((pos/10)+1) * sizeof(cliente));
+	}
+	cliente p;
+	strncpy(p.nome , nome, 30);
+	p.nascimento = nascimento;
+	p.gastos = gastos;
+	memcpy((listaP->pCliente+pos), &p, sizeof(cliente));
+}
+// remover clientes
+listaCliente BuscarRegistoRm(char nome[], listaCliente lista){
+	listaCliente listaTemp;
+	criarListaVaziaM(&listaTemp, lista.qtdcliente);
+	listaTemp.qtdcliente = lista.qtdcliente;
+	
+	int iTemp = 0;
+	for(int i= 0; i < lista.qtdcliente; i++){
+		if(strcmp(nome,(lista.pCliente+i)->nome)!=0){
+			int x = i - iTemp;
+			memcpy(listaTemp.pCliente+x, lista.pCliente+i, sizeof(cliente));
+		}else{
+			iTemp = 1;
+		}
+		
+	}
+	listaTemp.qtdcliente -= 1;
+	return listaTemp;
+}
+
+listaCliente BuscarRegistroAt(char nome[], listaCliente lista){
+	float novoGasto;
+	for(int i = 0; i< lista.qtdcliente; i++){
+		if(strcmp(nome,(lista.pCliente+i)->nome)==0){
+			printf("\n Digite o valor gasto pelo cliente: ");
+			scanf("%f", &novoGasto);
+			(lista.pCliente+i)->gastos = novoGasto;
+			return lista;
+		}
+	}
+	return lista;
+}
+void zerarRegistroGasto(listaCliente lista){
+	for(int i = 0; i < lista.qtdcliente; i++){
+		(lista.pCliente+i)->gastos = 0.0;
+	}
+		printf("\n Gastos Mensal zerados:\n ");
+		
+}
+void listarMelhorComprador(listaCliente lista){
+	float gastoTemp = 0.0;
+	cliente *p;
+	for(int i = 0; i < lista.qtdcliente; i++ ){
+		printf("\n Gastos do Cliente %s: %.2f \n ", (lista.pCliente+i) -> nome, (lista.pCliente+i)->gastos);
+		if((lista.pCliente+i)->gastos > gastoTemp){
+		gastoTemp = (lista.pCliente+i) ->gastos;
+		p = lista.pCliente+1;
+		
+		}
+	}
+	printf("\n O melhor COMPRADOR foi: ");
+	printf("\n Nome: %s, Nascimento: %d, Gastou: %.2f ", p->nome, p->nascimento, p->gastos );
+}
+void listaMontanteC(char buscarNome[], listaCliente lista){
+	for(int i = 0; i < lista.qtdcliente; i++){
+		if(strcmp (buscarNome,(lista.pCliente+i)->nome)== 0){
+			printf("\n Cliente: %d ", i);
+			printf("\n Nome: %s, Nascimento: %d, Gastou: %.2f ", (lista.pCliente+i)->nome, (lista.pCliente+i)-> nascimento, (lista.pCliente+i)->gastos);
+		}
+	}
+}
+	
+
+
+
+void listarCliente(listaCliente lista){
+	for(int i = 0; i < lista.qtdcliente; i++){
+		printf("\n Cliente: %d ", i);
+		printf("Nome: %s, Nascido em: %d, gastou: %.2f ", (lista.pCliente+i) ->nome, (lista.pCliente+i)->nascimento, (lista.pCliente+i)->gastos);
+	}
+}
+void MenuPrincipal(){
+	
+	printf("\n 1. Incluir Novo cliente. ");
+	printf("\n 2. Remover cliente. ");
+	printf("\n 3. Atualizar gastos do cliente. ");
+	printf("\n 4. Zerar gatos por virada de mês. ");
+	printf("\n 5. Listar melhor comprador. ");
+	printf("\n 6. Listar montante gasto de cliente. ");
+	printf("\n 7. Listar todos. ");
+	printf("\n 0. Sair. ");
+	printf("\n Escolha uma das opções: ");
+}
+
+int main(){
+	
+	// setar padrao de escrita(acentos)
+	setlocale(LC_ALL, "portuguese");
+	
+	
+	listaCliente lista;
+	criarListaVazia(&lista);
+	lista.qtdcliente = 0;
+	char nome[30];
+	int nascimento;
+	float gastos;
+	char buscarNome[30];
+	
+	
+	
+	int escolha = 8;
+	while (escolha != 0){
+	switch(escolha){
+	case 1:
+		printf("\n Digite o nome do cliente. ");
+		scanf("%s", nome);
+		
+		printf("\nDigite a data de nascimento. ");
+		scanf("%d", &nascimento);
+		
+		printf("\n Digite os gasto desse cliente. ");
+		scanf("%f", &gastos);
+		
+		inserirRegistro(nome, nascimento, gastos, &lista, lista.qtdcliente);
+		lista.qtdcliente += 1;
+		printf("\n Cadastro realizado com Sucesso! ");
+			escolha = 8;
+		break;
+		case 2:
+			printf("Digite o Cliente a ser removido: ");
+			scanf("%s", buscarNome);
+			lista = BuscarRegistoRm(buscarNome, lista);
+		escolha = 8;
+		break;
+		case 3:
+			printf("\n Digite o nome do cliente a ser Atualizado: ");
+			scanf("%s", buscarNome);
+			lista = BuscarRegistroAt(buscarNome, lista);
+		escolha = 8;
+		break;
+		case 4:
+			zerarRegistroGasto(lista);
+			
+		
+		escolha = 8;
+		break;
+		case 5:
+			listarMelhorComprador(lista);
+		
+		escolha = 8;
+		break;
+		case 6:
+			printf("\n Digite o nome do cliente desejado: ");
+			scanf("%s", buscarNome);
+			listaMontanteC(buscarNome, lista);
+		escolha = 8;
+		break;
+		case 7:
+			listarCliente(lista);
+	
+		escolha = 8;
+		break;
+		default:
+			MenuPrincipal();
+			scanf("%d", &escolha);
+			break;
+	}
+	}
+	system("pause");
+	return 0;	
+};
+
